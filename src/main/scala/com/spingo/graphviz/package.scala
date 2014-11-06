@@ -21,7 +21,7 @@ package object graphviz {
   implicit def xmlToGvXml(n: scala.xml.Elem) = GvXml(n)
 
 
-  class Digraph(output: PrintWriter) {
+  class Digraph(output: PrintWriter) extends java.io.Closeable {
     output.write("digraph g{\n")
 
     private def toParameters(params: Seq[(String, GvValue)]) =
