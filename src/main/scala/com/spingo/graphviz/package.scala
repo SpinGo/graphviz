@@ -5,21 +5,17 @@ import org.apache.commons.lang3.StringEscapeUtils.escapeJava
 
 package object graphviz {
 
-  sealed trait GvValue { def render: String; def value: Any }
+  type GvParameter = (String, GvValue)
+  trait GvValue { def render: String; def value: Any }
   case class GvString(value: String) extends GvValue {
     def render = "\"%s\"" format escapeJava(value)
   }
   case class GvNumber[A](value: A)(implicit numeric: Numeric[A]) extends GvValue {
     def render = value.toString
   }
-  case class GvXml(value: scala.xml.Elem) extends GvValue {
-    def render = "<" + value.toString + ">"
-  }
 
   implicit def numericToGvNumber[A](n: A)(implicit numeric: Numeric[A]) = GvNumber(n)
   implicit def stringToGvString(s: String) = GvString(s)
-  implicit def xmlToGvXml(n: scala.xml.Elem) = GvXml(n)
-
 
   class Digraph(output: PrintWriter) extends java.io.Closeable {
     output.write("digraph g{\n")
