@@ -6,6 +6,9 @@ import org.apache.commons.lang3.StringEscapeUtils.escapeJava
 package object graphviz {
 
   type GvParameter = (String, GvValue)
+  object GvParameters {
+    def apply(l: GvParameter*) = l
+  }
   trait GvValue { def render: String; def value: Any }
   case class GvString(value: String) extends GvValue {
     def render = "\"%s\"" format escapeJava(value)
@@ -20,13 +23,13 @@ package object graphviz {
   class Digraph(output: PrintWriter) extends java.io.Closeable {
     output.write("digraph g{\n")
 
-    private def toParameters(params: Seq[(String, GvValue)]) =
+    private def toParameters(params: Seq[GvParameter]) =
       params map { case (k, v) => "%s=%s" format (k, v.render) } mkString " "
 
-    def node(node: String, params: (String, GvValue)*): Unit =
+    def node(node: String, params: GvParameter*): Unit =
       output.write(s"""  ${node} [${toParameters(params)}]\n""")
 
-    def edge(nodeA: String, nodeB: String, params: (String, GvValue)*): Unit =
+    def edge(nodeA: String, nodeB: String, params: GvParameter*): Unit =
       output.write(s"""  ${nodeA} -> ${nodeB} [${toParameters(params)}]\n""")
     def close = {
       output.write("}\n")
